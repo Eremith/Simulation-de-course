@@ -2,9 +2,13 @@
 #include <iostream>
 #include "Point3D.h"
 #include "Runner.h"
+#include "Functions.h"
 
 int main() {
 
+    generatePath(100);
+
+    /*
     sf::RenderWindow window(sf::VideoMode::getDesktopMode(), "Simulation", sf::Style::Fullscreen);
     sf::CircleShape shape(500.f);
 
@@ -20,6 +24,7 @@ int main() {
         window.draw(shape);
         window.display();
     }
+    */
 
     return 0;
 }

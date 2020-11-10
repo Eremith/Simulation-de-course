@@ -1,3 +1,4 @@
+#pragma once
 class Runner {
 private:
     const float weight;       //poids en kg
