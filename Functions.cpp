@@ -1,5 +1,6 @@
 #include <iostream>
 #include "Functions.h"
+#include <SFML/Graphics.hpp>
 #include <fstream>
 #include <ctime>
 #include <cmath>
@@ -13,15 +14,12 @@ void generatePath(int km){
 
     srand((unsigned int)time(0));
 
-    
-
-
     ofstream path("path.txt");
     if (path) {
 
         vector<Point3D> chemin;
         float rpt = 0.4;
-        float rptsecond = 0.1;
+        float rptsecond = 0.25;
 
         Point3D origin(0, 0, 0);
         chemin.insert(chemin.begin(), origin);
@@ -51,24 +49,55 @@ void generatePath(int km){
             }
         } while (count > 0);
         
-        /*
-        int distance = (int)origin.distanceTo(finish);
-        if (distance > 10) {
-            Point3D tmp(rand() % (int)distance * 2 * rpt - (int)distance * rpt, rand() % (int)distance * 2 * rpt - (int)distance * rpt, (int)finish.GetZ() / 2);
-            chemin.insert(chemin.begin() + 1, tmp);
-        }
-        */
-        
+        Point3D end(0, -100, km);
+        chemin.insert(chemin.end(), end);
+        Point3D start(0, -100, 0);
+        chemin.insert(chemin.begin(), start);
 
         cout << "The vector elements are: ";
         for (auto it = chemin.begin(); it != chemin.end(); ++it) {
             Point3D a = *it;
-            path << a.GetX() << sp << a.GetY() << sp << a.GetZ() << endl;
-            cout << a.GetX() << sp << a.GetY() << sp << a.GetZ() << endl;
+            path << a.GetX() << sp << a.GetY() << sp << a.GetZ() * 4 << endl;
+            cout << a.GetX() << sp << a.GetY() << sp << a.GetZ() * 4 << endl;
         }
         
         path.close();
     }
     else cout << "Impossible d'ouvrir le fichier" << endl;
 
+}
+
+void printPath() {
+
+    vector<Point3D> vPath;
+
+    ofstream path("path.txt");
+    if (path) {
+        /*
+        int count = 0;
+        string ligne;
+        while (getline(ligne, path)) {
+
+        }
+        cout << "Lignes : " << count << endl;
+        */
+    path.close();
+    }
+    else cout << "Impossible d'ouvrir le fichier" << endl;
+
+    sf::RenderWindow window(sf::VideoMode::getDesktopMode(), "Simulation", sf::Style::Fullscreen);
+    sf::CircleShape shape(500.f);
+
+    while (window.isOpen()) {
+
+        sf::Event event;
+        while (window.pollEvent(event)) {
+            if (event.type == sf::Event::Closed || sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
+                window.close();
+        }
+
+        window.clear();
+        window.draw(shape);
+        window.display();
+    }
 }
