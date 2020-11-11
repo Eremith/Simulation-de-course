@@ -18,8 +18,9 @@ void generatePath(int km){
     if (path) {
 
         vector<Point3D> chemin;
-        float rpt = 0.4;
-        float rptsecond = 0.25;
+        float rpt = 0.5;
+        float rptsecond = 0.3;
+        int dtcurve = 10;
 
         Point3D origin(0, 0, 0);
         chemin.insert(chemin.begin(), origin);
@@ -36,7 +37,7 @@ void generatePath(int km){
                 Point3D t1 = *it;
                 Point3D t2 = *(it + 1);
                 distance = t2.GetZ() - t1.GetZ();
-                if (distance > 10) {
+                if (distance > dtcurve) {
                     Point3D tmp(
                         (t2.GetX() - t1.GetX()) / 2 + (int)(rand() % (t2.GetZ() - t1.GetZ()) * rpt - (t2.GetZ() - t1.GetZ()) * rpt / 2),
                         (t2.GetY() - t1.GetY()) / 2 + (int)(rand() % (t2.GetZ() - t1.GetZ()) * rptsecond - (t2.GetZ() - t1.GetZ()) * rptsecond / 2),
@@ -49,16 +50,16 @@ void generatePath(int km){
             }
         } while (count > 0);
         
-        Point3D end(0, -100, km);
+        Point3D end(0, 50, km);
         chemin.insert(chemin.end(), end);
-        Point3D start(0, -100, 0);
+        Point3D start(0, 50, 0);
         chemin.insert(chemin.begin(), start);
 
-        cout << "The vector elements are: ";
+        //cout << "The vector elements are: ";
         for (auto it = chemin.begin(); it != chemin.end(); ++it) {
             Point3D a = *it;
-            path << a.GetX() << sp << a.GetY() << sp << a.GetZ() * 4 << endl;
-            cout << a.GetX() << sp << a.GetY() << sp << a.GetZ() * 4 << endl;
+            path << a.GetX() * 2 << sp << a.GetY() * 2 << sp << a.GetZ() * 8 << endl;
+            //cout << a.GetX() << sp << a.GetY() << sp << a.GetZ() * 4 << endl;
         }
         
         path.close();
@@ -67,26 +68,69 @@ void generatePath(int km){
 
 }
 
+vector<string> split(const string& src, char delim) {
+    vector<string> v;
+    auto p = begin(src);
+    for (auto q = find(p, end(src), delim); q != end(src); q = find(++p, end(src), delim)) {
+        v.emplace_back(p, q);
+        p = q;
+    }
+    if (p != end(src))
+        v.emplace_back(p, end(src));
+    return v;
+}
+
 void printPath() {
 
     vector<Point3D> vPath;
+    sf::ConvexShape convex;
+    sf::VertexArray lines(sf::LineStrip);
 
-    ofstream path("path.txt");
+    ifstream path("path.txt");
     if (path) {
-        /*
+        
         int count = 0;
         string ligne;
-        while (getline(ligne, path)) {
-
+        while (getline(path, ligne)) {
+            count++;
         }
-        cout << "Lignes : " << count << endl;
-        */
-    path.close();
+
+        lines.resize(count);
+        convex.setPointCount(count);
+
+        path.clear();
+        path.seekg(0, ios::beg);
+
+        int current = 0;
+        while (getline(path, ligne)) {
+            vector<string> n = split(ligne, ';');
+            int x = atoi(n[0].c_str()), y = atoi(n[1].c_str()), z = atoi(n[2].c_str());
+            
+            cout << x << " " << y << " " << z << endl;
+
+            convex.setPoint(current, sf::Vector2f(z, y));
+            lines[current].position = sf::Vector2f(z, x + 600);
+
+            current++;
+        }
+
+        lines.resize(count - 1);
+
+        path.close();
     }
     else cout << "Impossible d'ouvrir le fichier" << endl;
 
-    sf::RenderWindow window(sf::VideoMode::getDesktopMode(), "Simulation", sf::Style::Fullscreen);
-    sf::CircleShape shape(500.f);
+
+
+    
+    sf::RenderWindow window(sf::VideoMode(1500, 800), "Simulation");
+    int screen_width = (sf::VideoMode::getDesktopMode().width - 1500) / 2;
+    int screen_height = (sf::VideoMode::getDesktopMode().height - 800) / 2;
+    window.setPosition(sf::Vector2i(screen_width, screen_height));
+
+    convex.setPosition(0, 200);
+    convex.setFillColor(sf::Color(0, 125, 0));
+    
 
     while (window.isOpen()) {
 
@@ -97,7 +141,9 @@ void printPath() {
         }
 
         window.clear();
-        window.draw(shape);
+        window.draw(convex);
+        window.draw(lines);
         window.display();
     }
+    
 }
