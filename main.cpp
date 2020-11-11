@@ -4,11 +4,11 @@
 #include "Runner.h"
 #include "Functions.h"
 
+using namespace std;
+
 int main() {
 
-    generatePath(100);
-
-    printPath();
+    if (printPath(generatePath(100)) == 1) cout << "erreur kilometrage (10 -> 200)" << endl;
 
     return 0;
 }

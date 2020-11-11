@@ -10,7 +10,9 @@
 
 using namespace std;
 
-void generatePath(int km){
+int generatePath(int km){
+
+    if (km < 10 || km > 200) return 1;
 
     srand((unsigned int)time(0));
 
@@ -19,8 +21,8 @@ void generatePath(int km){
 
         vector<Point3D> chemin;
         float rpt = 0.5;
-        float rptsecond = 0.3;
-        int dtcurve = 10;
+        float rptsecond = 0.35;
+        int dtcurve = km / 10;
 
         Point3D origin(0, 0, 0);
         chemin.insert(chemin.begin(), origin);
@@ -50,21 +52,23 @@ void generatePath(int km){
             }
         } while (count > 0);
         
-        Point3D end(0, 50, km);
+        Point3D end(0, 100, km);
         chemin.insert(chemin.end(), end);
-        Point3D start(0, 50, 0);
+        Point3D start(0, 100, 0);
         chemin.insert(chemin.begin(), start);
 
         //cout << "The vector elements are: ";
         for (auto it = chemin.begin(); it != chemin.end(); ++it) {
             Point3D a = *it;
-            path << a.GetX() * 2 << sp << a.GetY() * 2 << sp << a.GetZ() * 8 << endl;
+            path << a.GetX() << sp << a.GetY() << sp << a.GetZ() * 4 << endl;
             //cout << a.GetX() << sp << a.GetY() << sp << a.GetZ() * 4 << endl;
         }
         
         path.close();
     }
     else cout << "Impossible d'ouvrir le fichier" << endl;
+
+    return km;
 
 }
 
@@ -80,7 +84,9 @@ vector<string> split(const string& src, char delim) {
     return v;
 }
 
-void printPath() {
+int printPath(int km) {
+
+    if (km == 1) return 1;
 
     vector<Point3D> vPath;
     sf::ConvexShape convex;
@@ -108,8 +114,8 @@ void printPath() {
             
             cout << x << " " << y << " " << z << endl;
 
-            convex.setPoint(current, sf::Vector2f(z, y));
-            lines[current].position = sf::Vector2f(z, x + 600);
+            convex.setPoint(current, sf::Vector2f(z * (int)(800 / (km * 4)), y));
+            lines[current].position = sf::Vector2f(z * (int)(800 / (km * 4)), x * (int)(800 / (km * 4)) + 600);
 
             current++;
         }
@@ -145,5 +151,7 @@ void printPath() {
         window.draw(lines);
         window.display();
     }
+
+    return 0;
     
 }
