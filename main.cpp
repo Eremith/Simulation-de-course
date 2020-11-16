@@ -1,14 +1,32 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
-#include "Point3D.h"
-#include "Runner.h"
+#include "Class.h"
 #include "Functions.h"
 
 using namespace std;
 
 int main() {
 
-    if (printPath(generatePath(100)) == 1) cout << "erreur kilometrage (10 -> 200)" << endl;
+    if (generateRunner(10) == 1) {
+        cout << "erreur nombre de coureur (2 -> 200)" << endl;
+    }
+    else {
+        InfosRunner *array = readRunner(10);
+
+        //
+        cout << "XXXXXXXXXXXXX" << array[0].GetMichel().GetShoesWeight() << endl;
+        cout << "XXXXXXXXXXXXX" << array[9].GetMichel().GetShoesWeight() << endl;
+        //
+
+        if (generatePath(100) == 1) {
+            cout << "erreur kilometrage (10 -> 200)" << endl;
+        }
+        else {
+            printPath(100);
+        }
+    }
+
+    
 
     return 0;
 }

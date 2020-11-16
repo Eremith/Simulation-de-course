@@ -52,25 +52,16 @@ build CMakeFiles\Simulation-course.dir\main.cpp.obj: CXX_COMPILER__Simulation-co
   TARGET_COMPILE_PDB = CMakeFiles\Simulation-course.dir\
   TARGET_PDB = Simulation-course.pdb
 
-build CMakeFiles\Simulation-course.dir\Point3D.cpp.obj: CXX_COMPILER__Simulation-course_Debug ..\..\..\Point3D.cpp || cmake_object_order_depends_target_Simulation-course_Debug
-  DEFINES = -DSFML_STATIC
-  FLAGS = /DWIN32 /D_WINDOWS /W4 /GR /EHsc /MTd /Zi /Ob0 /Od /RTC1
-  INCLUDES = -IC:\SFML-2.5.1_windows_VS15.6_static\include
-  OBJECT_DIR = CMakeFiles\Simulation-course.dir
-  OBJECT_FILE_DIR = CMakeFiles\Simulation-course.dir
-  TARGET_COMPILE_PDB = CMakeFiles\Simulation-course.dir\
-  TARGET_PDB = Simulation-course.pdb
-
-build CMakeFiles\Simulation-course.dir\Runner.cpp.obj: CXX_COMPILER__Simulation-course_Debug ..\..\..\Runner.cpp || cmake_object_order_depends_target_Simulation-course_Debug
-  DEFINES = -DSFML_STATIC
-  FLAGS = /DWIN32 /D_WINDOWS /W4 /GR /EHsc /MTd /Zi /Ob0 /Od /RTC1
-  INCLUDES = -IC:\SFML-2.5.1_windows_VS15.6_static\include
-  OBJECT_DIR = CMakeFiles\Simulation-course.dir
-  OBJECT_FILE_DIR = CMakeFiles\Simulation-course.dir
-  TARGET_COMPILE_PDB = CMakeFiles\Simulation-course.dir\
-  TARGET_PDB = Simulation-course.pdb
-
 build CMakeFiles\Simulation-course.dir\Functions.cpp.obj: CXX_COMPILER__Simulation-course_Debug ..\..\..\Functions.cpp || cmake_object_order_depends_target_Simulation-course_Debug
+  DEFINES = -DSFML_STATIC
+  FLAGS = /DWIN32 /D_WINDOWS /W4 /GR /EHsc /MTd /Zi /Ob0 /Od /RTC1
+  INCLUDES = -IC:\SFML-2.5.1_windows_VS15.6_static\include
+  OBJECT_DIR = CMakeFiles\Simulation-course.dir
+  OBJECT_FILE_DIR = CMakeFiles\Simulation-course.dir
+  TARGET_COMPILE_PDB = CMakeFiles\Simulation-course.dir\
+  TARGET_PDB = Simulation-course.pdb
+
+build CMakeFiles\Simulation-course.dir\Class.cpp.obj: CXX_COMPILER__Simulation-course_Debug ..\..\..\Class.cpp || cmake_object_order_depends_target_Simulation-course_Debug
   DEFINES = -DSFML_STATIC
   FLAGS = /DWIN32 /D_WINDOWS /W4 /GR /EHsc /MTd /Zi /Ob0 /Od /RTC1
   INCLUDES = -IC:\SFML-2.5.1_windows_VS15.6_static\include
@@ -87,7 +78,7 @@ build CMakeFiles\Simulation-course.dir\Functions.cpp.obj: CXX_COMPILER__Simulati
 #############################################
 # Link the executable Simulation-course.exe
 
-build Simulation-course.exe: CXX_EXECUTABLE_LINKER__Simulation-course_Debug CMakeFiles\Simulation-course.dir\main.cpp.obj CMakeFiles\Simulation-course.dir\Point3D.cpp.obj CMakeFiles\Simulation-course.dir\Runner.cpp.obj CMakeFiles\Simulation-course.dir\Functions.cpp.obj | C$:\SFML-2.5.1_windows_VS15.6_static\lib\sfml-graphics-s-d.lib C$:\SFML-2.5.1_windows_VS15.6_static\lib\sfml-window-s-d.lib C$:\SFML-2.5.1_windows_VS15.6_static\lib\sfml-system-s-d.lib C$:\SFML-2.5.1_windows_VS15.6_static\lib\freetype.lib
+build Simulation-course.exe: CXX_EXECUTABLE_LINKER__Simulation-course_Debug CMakeFiles\Simulation-course.dir\main.cpp.obj CMakeFiles\Simulation-course.dir\Functions.cpp.obj CMakeFiles\Simulation-course.dir\Class.cpp.obj | C$:\SFML-2.5.1_windows_VS15.6_static\lib\sfml-graphics-s-d.lib C$:\SFML-2.5.1_windows_VS15.6_static\lib\sfml-window-s-d.lib C$:\SFML-2.5.1_windows_VS15.6_static\lib\sfml-system-s-d.lib C$:\SFML-2.5.1_windows_VS15.6_static\lib\freetype.lib
   FLAGS = /DWIN32 /D_WINDOWS /W4 /GR /EHsc /MTd /Zi /Ob0 /Od /RTC1
   LINK_FLAGS = /machine:x64 /debug /INCREMENTAL /subsystem:console
   LINK_LIBRARIES = C:\SFML-2.5.1_windows_VS15.6_static\lib\sfml-graphics-s-d.lib  C:\SFML-2.5.1_windows_VS15.6_static\lib\sfml-window-s-d.lib  C:\SFML-2.5.1_windows_VS15.6_static\lib\sfml-system-s-d.lib  winmm.lib  gdi32.lib  OpenGL32.lib  C:\SFML-2.5.1_windows_VS15.6_static\lib\freetype.lib  kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib

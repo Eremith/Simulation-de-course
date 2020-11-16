@@ -20,8 +20,8 @@ int generatePath(int km){
     if (path) {
 
         vector<Point3D> chemin;
-        float rpt = 0.5;
-        float rptsecond = 0.35;
+        float rpt = 0.3;
+        float rptsecond = 0.3;
         int dtcurve = km / 10;
 
         Point3D origin(0, 0, 0);
@@ -57,11 +57,9 @@ int generatePath(int km){
         Point3D start(0, 100, 0);
         chemin.insert(chemin.begin(), start);
 
-        //cout << "The vector elements are: ";
         for (auto it = chemin.begin(); it != chemin.end(); ++it) {
             Point3D a = *it;
-            path << a.GetX() << sp << a.GetY() << sp << a.GetZ() * 4 << endl;
-            //cout << a.GetX() << sp << a.GetY() << sp << a.GetZ() * 4 << endl;
+            path << a.GetX() * 4 << sp << a.GetY() << sp << a.GetZ() * (int)(800 / km) << endl;
         }
         
         path.close();
@@ -88,7 +86,6 @@ int printPath(int km) {
 
     if (km == 1) return 1;
 
-    vector<Point3D> vPath;
     sf::ConvexShape convex;
     sf::VertexArray lines(sf::LineStrip);
 
@@ -111,16 +108,33 @@ int printPath(int km) {
         while (getline(path, ligne)) {
             vector<string> n = split(ligne, ';');
             int x = atoi(n[0].c_str()), y = atoi(n[1].c_str()), z = atoi(n[2].c_str());
-            
-            cout << x << " " << y << " " << z << endl;
 
-            convex.setPoint(current, sf::Vector2f(z * (int)(800 / (km * 4)), y));
-            lines[current].position = sf::Vector2f(z * (int)(800 / (km * 4)), x * (int)(800 / (km * 4)) + 600);
+            //
+            cout << x << " " << y << " " << z << endl;
+            //
+
+            convex.setPoint(current, sf::Vector2f(z, y));
+            lines[current].position = sf::Vector2f(z, x + 600);
 
             current++;
         }
 
         lines.resize(count - 1);
+
+        //
+        for (int i = 1; i < convex.getPointCount() - 2; i++) {
+            float pente = 0;
+            pente = (convex.getPoint(i).y - convex.getPoint(i + 1).y * 100) / sqrt(pow(abs((lines[i].position.y - 600) - (lines[i + 1].position.y - 600)), 2) + pow(abs(convex.getPoint(i).y - convex.getPoint(i + 1).y), 2) + pow(abs(convex.getPoint(i).x - convex.getPoint(i + 1).x), 2));
+            cout << pente << endl;
+            if (pente - (int)pente > 0.5) {
+                pente = (int)pente + 1;
+            }
+            else {
+                pente = (int)pente;
+            }
+            cout << pente << endl;
+        }
+        //
 
         path.close();
     }
@@ -129,10 +143,7 @@ int printPath(int km) {
 
 
     
-    sf::RenderWindow window(sf::VideoMode(1500, 800), "Simulation");
-    int screen_width = (sf::VideoMode::getDesktopMode().width - 1500) / 2;
-    int screen_height = (sf::VideoMode::getDesktopMode().height - 800) / 2;
-    window.setPosition(sf::Vector2i(screen_width, screen_height));
+    sf::RenderWindow window(sf::VideoMode(1920, 1080), "Simulation");
 
     convex.setPosition(0, 200);
     convex.setFillColor(sf::Color(0, 125, 0));
@@ -154,4 +165,65 @@ int printPath(int km) {
 
     return 0;
     
+}
+
+int generateRunner(int nbrunner) {
+
+    if (nbrunner < 2 || nbrunner > 200) return 1;
+
+    ofstream runner("runner.txt");
+    if (runner) {
+
+        srand((unsigned int)time(0));
+
+        for (int i = 0; i < nbrunner; i++) {
+            int poids = rand() % 75 + 45;
+            float taille = (rand() % 70 + 130) / 100.;
+            int shoes = rand() % 200 + 100;
+            float vtprec = (rand() % 130 + 70) / 10.;
+            int prepa = rand() % 8 + 8;
+
+            int dossard = i + 1;
+
+            runner << poids << sp << taille << sp << shoes << sp << vtprec << sp << prepa << sp << dossard << endl;
+        }
+
+        runner.close();
+    }
+    else cout << "Impossible d'ouvrir le fichier" << endl;
+
+    return nbrunner;
+}
+
+InfosRunner *readRunner(int nbrunner) {
+
+    ifstream runner("runner.txt");
+    if (runner) {
+        
+        int count = 0;
+        InfosRunner* array = new InfosRunner[nbrunner];
+        string ligne;
+        while (getline(runner, ligne)) {
+            vector<string> n = split(ligne, ';');
+            int poids = atoi(n[0].c_str()), shoes = atoi(n[2].c_str()), prepa = atoi(n[4].c_str()), dossard = atoi(n[5].c_str());
+            float taille = atof(n[1].c_str()), vtprec = atof(n[3].c_str());
+
+            //
+            cout << poids << sp << taille << sp << shoes << sp << vtprec << sp << prepa << sp << dossard << endl;
+            //
+
+            Runner rene(poids, taille, shoes, vtprec, prepa, dossard);
+            
+            float v = 0;
+            int w = 0;
+            InfosRunner b(rene, v, w, w);
+            array[count] = b;
+
+            count++;
+        }
+        runner.close();
+
+        return array;
+    }
+    else cout << "Impossible d'ouvrir le fichier" << endl;
 }
