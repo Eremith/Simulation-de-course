@@ -153,20 +153,32 @@ int printPath(sf::ConvexShape convex, sf::VertexArray lines, InfosRunner* array,
     convex.setPosition(0, 200);
     convex.setFillColor(sf::Color(0, 125, 0));
 
-    
+    sf::Text text;
+    sf::Font font;
+    if (!font.loadFromFile("OpenSans-Bold.ttf"))
+    {
+        // erreur...
+    }
+    text.setFont(font);
+    text.setString("Hello World!");
+    text.setColor(sf::Color::White);
+    text.setCharacterSize(24);
+    text.setPosition(100, 100);
+
     sf::CircleShape gens(3);
     vector<pair<sf::CircleShape, pair<InfosRunner, int>>> gehghghns(nb);
 
     for (int i = 0; i < nb; i++) {
         gehghghns[i].first = gens;
+        gehghghns[i].first.setFillColor(sf::Color(rand() % 256, rand() % 256, rand() % 256));
         gehghghns[i].second.second = 1;
         gehghghns[i].second.first = array[i];
     }
 
     vector<float> distanceBetweenPoints(convex.getPointCount() - 2);
     for (int i = 0; i < convex.getPointCount() - 3; i++) {
-        distanceBetweenPoints[i] = sqrt(pow(lines[i + 2].position.y - lines[i + 1].position.y, 2) + pow(convex.getPoint(i + 2).y - convex.getPoint(i + 1).y, 2) + pow(convex.getPoint(i + 2).x - convex.getPoint(i + 1).x, 2));
-        cout << distanceBetweenPoints[i] << sp;
+        distanceBetweenPoints[i] = (km * 5 / 4) * sqrt(pow(lines[i + 2].position.y - lines[i + 1].position.y, 2) + pow(convex.getPoint(i + 2).y - convex.getPoint(i + 1).y, 2) + pow(convex.getPoint(i + 2).x - convex.getPoint(i + 1).x, 2));
+        cout << distanceBetweenPoints[i] << sp; //en m
     }
     cout << endl;
     
@@ -182,33 +194,40 @@ int printPath(sf::ConvexShape convex, sf::VertexArray lines, InfosRunner* array,
                     window.close();
             }
 
-            _sleep(50);
+            //_sleep(50);
 
             float tmpdistance = 0;
             for (int k = 0; k < nb; k++) { //Calcul de la VInst, de la distance parcourue et du point précédent
-                gehghghns[k].second.first.SetVinst((gehghghns[k].second.first.GetMichel().GetAvgSpeed() * 1000) / 3600);
-                gehghghns[k].second.first.SetTraveled(gehghghns[k].second.first.GetTraveled() + gehghghns[k].second.first.GetVinst());
+                gehghghns[k].second.first.SetVinst(gehghghns[k].second.first.GetMichel().GetAvgSpeed() / 3.6); //vinst = m/s, avgspeed = km/h
+                gehghghns[k].second.first.SetTraveled(gehghghns[k].second.first.GetTraveled() + gehghghns[k].second.first.GetVinst()); //traveled = m, vinst = m/s
 
-                tmpdistance = 0;
+                tmpdistance = 0; //en m
                 for (int v = 0; v < convex.getPointCount() - 3; v++) {
                     tmpdistance += distanceBetweenPoints[v];
                     if (gehghghns[k].second.first.GetTraveled() >= tmpdistance) gehghghns[k].second.second = v + 1;
                 }
-                float tmpd = 0;
+                float tmpd = 0; // en m
                 for (int f = 0; f < gehghghns[k].second.second; f++) {
                     tmpd += distanceBetweenPoints[f];
                 }
-                float tmpx = 0, tmpy = 0;
-                tmpx = ((gehghghns[k].second.first.GetTraveled() - tmpd) / distanceBetweenPoints[gehghghns[k].second.second]) * (convex.getPoint(gehghghns[k].second.second + 2).x - convex.getPoint(gehghghns[k].second.second + 1).x) + convex.getPoint(gehghghns[k].second.second + 1).x;
-                tmpy = ((gehghghns[k].second.first.GetTraveled() - tmpd) / distanceBetweenPoints[gehghghns[k].second.second]) * (convex.getPoint(gehghghns[k].second.second + 2).y - convex.getPoint(gehghghns[k].second.second + 1).y) + convex.getPoint(gehghghns[k].second.second + 1).y;
+                float tmpx = 0, tmpy = 0; // en m
+                float tmpdst = (gehghghns[k].second.first.GetTraveled() - tmpd) / distanceBetweenPoints[gehghghns[k].second.second]; // en m
+                tmpx = tmpdst * (convex.getPoint(gehghghns[k].second.second + 2).x * ((km * 5) / 4) - convex.getPoint(gehghghns[k].second.second + 1).x * ((km * 5) / 4)) + convex.getPoint(gehghghns[k].second.second + 1).x * ((km * 5) / 4);
+                tmpy = tmpdst * (convex.getPoint(gehghghns[k].second.second + 2).y * ((km * 5) / 4) - convex.getPoint(gehghghns[k].second.second + 1).y * ((km * 5) / 4)) + convex.getPoint(gehghghns[k].second.second + 1).y * ((km * 5) / 4);
+                tmpx = (tmpx * 4) / (km * 5); //en px
+                tmpy = (tmpy * 4) / (km * 5); // en px
                 gehghghns[k].first.setPosition(tmpx - 3, tmpy + 197);
-            }
+            }   //traveled en m, tmpd en m, distanceBetweenPoints en m, convexgetpoint x et y en px
             
-            endc = 0;
-            for (int n = 0; n < nb; n++) {
-                if (gehghghns[n].second.first.GetTraveled() >= tmpdistance) {
-                    endc++;
+            if (endc <= nb) {
+                endc = 0;
+                for (int n = 0; n < nb; n++) {
+                    if (gehghghns[n].second.first.GetTraveled() >= tmpdistance) {
+                        endc++;
+                    }
                 }
+
+                i++;
             }
 
             window.clear();
@@ -218,17 +237,42 @@ int printPath(sf::ConvexShape convex, sf::VertexArray lines, InfosRunner* array,
                 window.draw(gehghghns[k].first);
             }
 
+            
+            window.draw(text);
+
             window.draw(lines);
             window.display();
-
-            if (endc <= nb) {
-                i++;
-            }
     }
     cout << "ITERATION (=secondes)" << i << endl;
 
     return 0;
 
+}
+
+int generatePrenom() {
+    ofstream prenom("prenom.txt");
+    if (prenom) {
+        
+        string tab[] = { "Jean", "Pierre", "Michel", "Andre", "Philippe", "Rene", "Louis", "Alain", "Jacques", "Bernard",
+                         "Marcel", "Daniel", "Roger", "Robert", "Paul", "Claude", "Christian", "Henri", "Georges", "Nicolas", 
+                         "Francois", "Patrick", "Gerard", "Christophe", "Joseph", "Julien", "Maurice", "Laurent", "Frederic", "Eric", 
+                         "David", "Stephane", "Pascal", "Sebastien", "Alexandre", "Thierry", "Olivier", "Thomas", "Antoine", "Raymond", 
+                         "Guy", "Dominique", "Charles", "Didier", "Marc", "Vincent", "Yves", "Guillaume", "Bruno", "Serge", 
+                         "Maxime", "Marie", "Jeanne", "Francoise", "Monique", "Catherine", "Nathalie", "Isabelle", "Jacqueline", "Anne", 
+                         "Sylvie", "Martine", "Madeleine", "Nicole", "Suzanne", "Helene", "Christine", "Marguerite", "Denise", "Louise", 
+                         "Christiane", "Yvonne", "Valerie", "Sophie", "Sandrine", "Stephanie", "Celine", "Veronique", "Chantal", "Marcelle", 
+                         "Renee", "Simone", "Jeannine", "Julie", "Paulette", "Germaine", "Annie", "Patricia", "Yvette", "Brigitte", 
+                         "Lucie", "Camille", "Lea", "Odette", "Emilie", "Alice", "Genevieve", "Aurelie", "Laurence", "Michele"
+        };
+
+        for (int i = 0; i < 100; i++) {
+            prenom << tab[i] << endl;
+        }
+
+        prenom.close();
+    }
+    else cout << "Impossible d'ouvrir le fichier" << endl;
+    return 0;
 }
 
 int generateRunner(int nbrunner) {
@@ -246,9 +290,6 @@ int generateRunner(int nbrunner) {
             int shoes = rand() % 200 + 100;
             float vtprec = (rand() % 130 + 70) / 10.;
 
-            //
-            vtprec = 20;
-            //
 
             int prepa = rand() % 8 + 8;
 

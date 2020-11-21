@@ -9,6 +9,8 @@
 using namespace std;
 
 int main() {
+    
+    generatePrenom();
 
     if (generateRunner(RUNNER) == 1) {
         cout << "erreur nombre de coureur (2 -> 200)" << endl;
