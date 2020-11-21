@@ -85,7 +85,7 @@ InfosRunner::InfosRunner() {
 }
 InfosRunner::InfosRunner(Runner& newmichel,
     float& newvinst,
-    int& newtraveled,
+    float& newtraveled,
     int& newhydratation) :
     michel(newmichel),
     vinst(newvinst),
@@ -97,7 +97,7 @@ Runner InfosRunner::GetMichel() {
 float InfosRunner::GetVinst() {
     return vinst;
 }
-int InfosRunner::GetTraveled() {
+float InfosRunner::GetTraveled() {
     return traveled;
 }
 int InfosRunner::GetHydratation() {
@@ -106,7 +106,7 @@ int InfosRunner::GetHydratation() {
 void InfosRunner::SetVinst(float newvinst) {
     vinst = newvinst;
 }
-void InfosRunner::SetTraveled(int newtraveled) {
+void InfosRunner::SetTraveled(float newtraveled) {
     traveled = newtraveled;
 }
 void InfosRunner::SetHydratation(int newhydratation) {

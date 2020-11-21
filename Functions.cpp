@@ -22,7 +22,7 @@ int generatePath(int km){
         vector<Point3D> chemin;
         float rpt = 0.3;
         float rptsecond = 0.3;
-        int dtcurve = km / 10;
+        int dtcurve = 5;
 
         Point3D origin(0, 0, 0);
         chemin.insert(chemin.begin(), origin);
@@ -39,10 +39,10 @@ int generatePath(int km){
                 Point3D t1 = *it;
                 Point3D t2 = *(it + 1);
                 distance = t2.GetZ() - t1.GetZ();
-                if (distance > dtcurve) {
+                if (distance >= dtcurve) {
                     Point3D tmp(
-                        (t2.GetX() - t1.GetX()) / 2 + (int)(rand() % (t2.GetZ() - t1.GetZ()) * rpt - (t2.GetZ() - t1.GetZ()) * rpt / 2),
-                        (t2.GetY() - t1.GetY()) / 2 + (int)(rand() % (t2.GetZ() - t1.GetZ()) * rptsecond - (t2.GetZ() - t1.GetZ()) * rptsecond / 2),
+                        (t2.GetX() - t1.GetX()) / 2 + (int)(rand() % (t2.GetZ() - t1.GetZ()) * rpt - (t2.GetZ() - t1.GetZ()) * rpt / 2) + rand() % 8 - 2,
+                        (t2.GetY() - t1.GetY()) / 2 + (int)(rand() % (t2.GetZ() - t1.GetZ()) * rptsecond - (t2.GetZ() - t1.GetZ()) * rptsecond / 2) + rand() % 8 - 2,
                         (t2.GetZ() - t1.GetZ()) / 2 + t1.GetZ()
                     );
                     chemin.insert(chemin.begin() + insert, tmp);
@@ -82,7 +82,7 @@ vector<string> split(const string& src, char delim) {
     return v;
 }
 
-int printPath(int km) {
+int readPath(int km, sf::ConvexShape *c, sf::VertexArray *l) {
 
     if (km == 1) return 1;
 
@@ -124,8 +124,7 @@ int printPath(int km) {
         //
         for (int i = 1; i < convex.getPointCount() - 2; i++) {
             float pente = 0;
-            pente = (convex.getPoint(i).y - convex.getPoint(i + 1).y * 100) / sqrt(pow(abs((lines[i].position.y - 600) - (lines[i + 1].position.y - 600)), 2) + pow(abs(convex.getPoint(i).y - convex.getPoint(i + 1).y), 2) + pow(abs(convex.getPoint(i).x - convex.getPoint(i + 1).x), 2));
-            cout << pente << endl;
+            pente =  - ((convex.getPoint(i + 1).y - convex.getPoint(i).y) * 100) / sqrt(pow(lines[i + 1].position.y - lines[i].position.y, 2) + pow(convex.getPoint(i + 1).y - convex.getPoint(i).y, 2) + pow(convex.getPoint(i + 1).x - convex.getPoint(i).x, 2));
             if (pente - (int)pente > 0.5) {
                 pente = (int)pente + 1;
             }
@@ -136,35 +135,100 @@ int printPath(int km) {
         }
         //
 
+        *c = convex;
+        *l = lines;
+
         path.close();
     }
     else cout << "Impossible d'ouvrir le fichier" << endl;
 
-
-
+    return 0;
     
+}
+
+int printPath(sf::ConvexShape convex, sf::VertexArray lines, InfosRunner* array, int nb, int km) {
+
     sf::RenderWindow window(sf::VideoMode(1920, 1080), "Simulation");
 
     convex.setPosition(0, 200);
     convex.setFillColor(sf::Color(0, 125, 0));
+
+    
+    sf::CircleShape gens(3);
+    vector<pair<sf::CircleShape, pair<InfosRunner, int>>> gehghghns(nb);
+
+    for (int i = 0; i < nb; i++) {
+        gehghghns[i].first = gens;
+        gehghghns[i].second.second = 1;
+        gehghghns[i].second.first = array[i];
+    }
+
+    vector<float> distanceBetweenPoints(convex.getPointCount() - 2);
+    for (int i = 0; i < convex.getPointCount() - 3; i++) {
+        distanceBetweenPoints[i] = sqrt(pow(lines[i + 2].position.y - lines[i + 1].position.y, 2) + pow(convex.getPoint(i + 2).y - convex.getPoint(i + 1).y, 2) + pow(convex.getPoint(i + 2).x - convex.getPoint(i + 1).x, 2));
+        cout << distanceBetweenPoints[i] << sp;
+    }
+    cout << endl;
     
 
+    int i = 0;
+    int endc = 0;
     while (window.isOpen()) {
 
         sf::Event event;
-        while (window.pollEvent(event)) {
-            if (event.type == sf::Event::Closed || sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
-                window.close();
-        }
 
-        window.clear();
-        window.draw(convex);
-        window.draw(lines);
-        window.display();
+            while (window.pollEvent(event)) {
+                if (event.type == sf::Event::Closed || sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
+                    window.close();
+            }
+
+            _sleep(50);
+
+            float tmpdistance = 0;
+            for (int k = 0; k < nb; k++) { //Calcul de la VInst, de la distance parcourue et du point précédent
+                gehghghns[k].second.first.SetVinst((gehghghns[k].second.first.GetMichel().GetAvgSpeed() * 1000) / 3600);
+                gehghghns[k].second.first.SetTraveled(gehghghns[k].second.first.GetTraveled() + gehghghns[k].second.first.GetVinst());
+
+                tmpdistance = 0;
+                for (int v = 0; v < convex.getPointCount() - 3; v++) {
+                    tmpdistance += distanceBetweenPoints[v];
+                    if (gehghghns[k].second.first.GetTraveled() >= tmpdistance) gehghghns[k].second.second = v + 1;
+                }
+                float tmpd = 0;
+                for (int f = 0; f < gehghghns[k].second.second; f++) {
+                    tmpd += distanceBetweenPoints[f];
+                }
+                float tmpx = 0, tmpy = 0;
+                tmpx = ((gehghghns[k].second.first.GetTraveled() - tmpd) / distanceBetweenPoints[gehghghns[k].second.second]) * (convex.getPoint(gehghghns[k].second.second + 2).x - convex.getPoint(gehghghns[k].second.second + 1).x) + convex.getPoint(gehghghns[k].second.second + 1).x;
+                tmpy = ((gehghghns[k].second.first.GetTraveled() - tmpd) / distanceBetweenPoints[gehghghns[k].second.second]) * (convex.getPoint(gehghghns[k].second.second + 2).y - convex.getPoint(gehghghns[k].second.second + 1).y) + convex.getPoint(gehghghns[k].second.second + 1).y;
+                gehghghns[k].first.setPosition(tmpx - 3, tmpy + 197);
+            }
+            
+            endc = 0;
+            for (int n = 0; n < nb; n++) {
+                if (gehghghns[n].second.first.GetTraveled() >= tmpdistance) {
+                    endc++;
+                }
+            }
+
+            window.clear();
+            window.draw(convex);
+
+            for (int k = 0; k < nb; k++) {
+                window.draw(gehghghns[k].first);
+            }
+
+            window.draw(lines);
+            window.display();
+
+            if (endc <= nb) {
+                i++;
+            }
     }
+    cout << "ITERATION (=secondes)" << i << endl;
 
     return 0;
-    
+
 }
 
 int generateRunner(int nbrunner) {
@@ -181,6 +245,11 @@ int generateRunner(int nbrunner) {
             float taille = (rand() % 70 + 130) / 100.;
             int shoes = rand() % 200 + 100;
             float vtprec = (rand() % 130 + 70) / 10.;
+
+            //
+            vtprec = 20;
+            //
+
             int prepa = rand() % 8 + 8;
 
             int dossard = i + 1;
@@ -216,7 +285,7 @@ InfosRunner *readRunner(int nbrunner) {
             
             float v = 0;
             int w = 0;
-            InfosRunner b(rene, v, w, w);
+            InfosRunner b(rene, v, v, w);
             array[count] = b;
 
             count++;
