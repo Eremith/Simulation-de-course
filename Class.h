@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 class Point3D {
 private:
     int x, y, z;
@@ -46,16 +47,19 @@ private:
     float vinst;
     float traveled;
     int hydratation;
+    std::string prenom;
 public:
     InfosRunner();
     InfosRunner(Runner& newmichel,
         float& newvinst,
         float& newtraveled,
-        int& newhydratation);
+        int& newhydratation,
+        std::string& newprenom);
     Runner GetMichel();
     float GetVinst();
     float GetTraveled();
     int GetHydratation();
+    std::string GetPrenom();
     void SetVinst(float vinst);
     void SetTraveled(float traveled);
     void SetHydratation(int hydratation);

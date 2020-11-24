@@ -3,14 +3,12 @@
 #include "Class.h"
 #include "Functions.h"
 
-#define RUNNER 20
-#define KM 42
+#define RUNNER 10
+#define KM 40
 
 using namespace std;
 
 int main() {
-    
-    generatePrenom();
 
     if (generateRunner(RUNNER) == 1) {
         cout << "erreur nombre de coureur (2 -> 200)" << endl;
@@ -24,7 +22,7 @@ int main() {
         //
 
         if (generatePath(KM) == 1) {
-            cout << "erreur kilometrage (10 -> 200)" << endl;
+            cout << "erreur kilometrage (10 -> 100)" << endl;
         }
         else {
             sf::ConvexShape al;

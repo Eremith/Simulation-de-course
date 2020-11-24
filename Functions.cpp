@@ -2,9 +2,11 @@
 #include "Functions.h"
 #include <SFML/Graphics.hpp>
 #include <fstream>
+#include <sstream>
 #include <ctime>
 #include <cmath>
 #include <vector>
+#include <iomanip>
 
 #define sp ";"
 
@@ -12,7 +14,7 @@ using namespace std;
 
 int generatePath(int km){
 
-    if (km < 10 || km > 200) return 1;
+    if (km < 10 || km > 100) return 1;
 
     srand((unsigned int)time(0));
 
@@ -121,20 +123,6 @@ int readPath(int km, sf::ConvexShape *c, sf::VertexArray *l) {
 
         lines.resize(count - 1);
 
-        //
-        for (int i = 1; i < convex.getPointCount() - 2; i++) {
-            float pente = 0;
-            pente =  - ((convex.getPoint(i + 1).y - convex.getPoint(i).y) * 100) / sqrt(pow(lines[i + 1].position.y - lines[i].position.y, 2) + pow(convex.getPoint(i + 1).y - convex.getPoint(i).y, 2) + pow(convex.getPoint(i + 1).x - convex.getPoint(i).x, 2));
-            if (pente - (int)pente > 0.5) {
-                pente = (int)pente + 1;
-            }
-            else {
-                pente = (int)pente;
-            }
-            cout << pente << endl;
-        }
-        //
-
         *c = convex;
         *l = lines;
 
@@ -153,17 +141,25 @@ int printPath(sf::ConvexShape convex, sf::VertexArray lines, InfosRunner* array,
     convex.setPosition(0, 200);
     convex.setFillColor(sf::Color(0, 125, 0));
 
-    sf::Text text;
+    sf::Text text[20];
     sf::Font font;
     if (!font.loadFromFile("OpenSans-Bold.ttf"))
     {
         // erreur...
     }
-    text.setFont(font);
-    text.setString("Hello World!");
-    text.setColor(sf::Color::White);
-    text.setCharacterSize(24);
-    text.setPosition(100, 100);
+    for (int h = 0; h < nb; h++) {
+        text[h].setFont(font);
+        text[h].setString("");
+        text[h].setColor(sf::Color::White);
+        text[h].setCharacterSize(24);
+        text[h].setPosition(1000, 50 + 20 * h);
+    }
+    sf::Text time;
+    time.setFont(font);
+    time.setString("a");
+    time.setColor(sf::Color::White);
+    time.setCharacterSize(24);
+    time.setPosition(50, 50);
 
     sf::CircleShape gens(3);
     vector<pair<sf::CircleShape, pair<InfosRunner, int>>> gehghghns(nb);
@@ -181,10 +177,16 @@ int printPath(sf::ConvexShape convex, sf::VertexArray lines, InfosRunner* array,
         cout << distanceBetweenPoints[i] << sp; //en m
     }
     cout << endl;
-    
+
+    float distance = 0;
+    for (int v = 0; v < convex.getPointCount() - 3; v++) {
+        distance += distanceBetweenPoints[v];
+    }
+
+    vector<InfosRunner> leaderboard(10);
 
     int i = 0;
-    int endc = 0;
+    int endc = 1;
     while (window.isOpen()) {
 
         sf::Event event;
@@ -194,41 +196,106 @@ int printPath(sf::ConvexShape convex, sf::VertexArray lines, InfosRunner* array,
                     window.close();
             }
 
-            //_sleep(50);
-
             float tmpdistance = 0;
-            for (int k = 0; k < nb; k++) { //Calcul de la VInst, de la distance parcourue et du point précédent
-                gehghghns[k].second.first.SetVinst(gehghghns[k].second.first.GetMichel().GetAvgSpeed() / 3.6); //vinst = m/s, avgspeed = km/h
-                gehghghns[k].second.first.SetTraveled(gehghghns[k].second.first.GetTraveled() + gehghghns[k].second.first.GetVinst()); //traveled = m, vinst = m/s
-
-                tmpdistance = 0; //en m
-                for (int v = 0; v < convex.getPointCount() - 3; v++) {
-                    tmpdistance += distanceBetweenPoints[v];
-                    if (gehghghns[k].second.first.GetTraveled() >= tmpdistance) gehghghns[k].second.second = v + 1;
-                }
-                float tmpd = 0; // en m
-                for (int f = 0; f < gehghghns[k].second.second; f++) {
-                    tmpd += distanceBetweenPoints[f];
-                }
-                float tmpx = 0, tmpy = 0; // en m
-                float tmpdst = (gehghghns[k].second.first.GetTraveled() - tmpd) / distanceBetweenPoints[gehghghns[k].second.second]; // en m
-                tmpx = tmpdst * (convex.getPoint(gehghghns[k].second.second + 2).x * ((km * 5) / 4) - convex.getPoint(gehghghns[k].second.second + 1).x * ((km * 5) / 4)) + convex.getPoint(gehghghns[k].second.second + 1).x * ((km * 5) / 4);
-                tmpy = tmpdst * (convex.getPoint(gehghghns[k].second.second + 2).y * ((km * 5) / 4) - convex.getPoint(gehghghns[k].second.second + 1).y * ((km * 5) / 4)) + convex.getPoint(gehghghns[k].second.second + 1).y * ((km * 5) / 4);
-                tmpx = (tmpx * 4) / (km * 5); //en px
-                tmpy = (tmpy * 4) / (km * 5); // en px
-                gehghghns[k].first.setPosition(tmpx - 3, tmpy + 197);
-            }   //traveled en m, tmpd en m, distanceBetweenPoints en m, convexgetpoint x et y en px
-            
             if (endc <= nb) {
-                endc = 0;
+                
+
+
+                for (int k = 0; k < nb; k++) { //Calcul de la VInst, de la distance parcourue et du point précédent
+                    float vinst = 0;
+                    if (gehghghns[k].second.first.GetTraveled() >= distance) {
+                        vinst = 0;
+                    }
+                    else {
+                        vinst = gehghghns[k].second.first.GetMichel().GetAvgSpeed() / 3.6; //vitesse par défaut en m/s
+                    }
+
+                    int a = gehghghns[k].second.second;
+                    float pente = -((convex.getPoint(a + 1).y - convex.getPoint(a).y) * 100) / sqrt(pow(lines[a + 1].position.y - lines[a].position.y, 2) + pow(convex.getPoint(a + 1).y - convex.getPoint(a).y, 2) + pow(convex.getPoint(a + 1).x - convex.getPoint(a).x, 2));
+                    if (pente < 0) { //vitesse selon la pente
+                        vinst = vinst * (1 + pente / 150); //pente descendante
+                    }
+                    else {
+                        vinst = vinst * (1 + 0.35 * (-pente / 150)); //pente montante
+                    }
+
+                    int c = gehghghns[k].second.first.GetMichel().GetShoesWeight() / 100;
+                    vinst = vinst * (1 - (c * 1.1) / 100); //vitesse selon poids chaussure
+
+                    //vitesse decroissante selon training
+                    float slow = 42.195 / (2 * (1 + (gehghghns[k].second.first.GetMichel().GetTraining() - 8.) / 8));
+                    if (slow < gehghghns[k].second.first.GetTraveled() / 1000) {
+                        float rpt = ((gehghghns[k].second.first.GetTraveled() / 1000) - slow) / 100;
+                        if (rpt >= 0.20) {
+                            rpt = 0.20;
+                        }
+                        vinst = vinst * (1 - rpt);
+                    }
+
+                    gehghghns[k].second.first.SetVinst(vinst); //vinst = m/s, avgspeed = km/h
+                    gehghghns[k].second.first.SetTraveled(gehghghns[k].second.first.GetTraveled() + gehghghns[k].second.first.GetVinst()); //traveled = m, vinst = m/s
+
+                    //
+
+                    struct compA {
+                        bool operator()(pair<sf::CircleShape, pair<InfosRunner, int>>& a1, pair<sf::CircleShape, pair<InfosRunner, int>>& a2)
+                        {
+                            return (a1.second.first.GetTraveled() < a2.second.first.GetTraveled());
+                        }
+                    };
+
+
+                    std::sort(gehghghns.begin() + endc - 1, gehghghns.end(), compA());
+                    std::reverse(gehghghns.begin() + endc - 1, gehghghns.end());
+
+
+                    for (int d = 0; d < nb; d++) {
+                        ostringstream oss;
+                        int entier = (int)(gehghghns[d].second.first.GetVinst() * 100.0);
+                        float fltvinst = (float)entier / 100;
+                        entier = (int)(gehghghns[d].second.first.GetTraveled() / 100);
+                        float flttraveled = (float)entier / 10;
+                        oss << d + 1 << " " << gehghghns[d].second.first.GetPrenom() << "   " << fltvinst << "   " << flttraveled;
+                        std::string result = oss.str();
+                        text[d].setString(result);
+                    }
+                    //
+
+                    tmpdistance = 0; //en m
+                    for (int v = 0; v < convex.getPointCount() - 3; v++) {
+                        tmpdistance += distanceBetweenPoints[v];
+                        if (gehghghns[k].second.first.GetTraveled() >= tmpdistance) gehghghns[k].second.second = v + 1;
+                    }
+                    float tmpd = 0; // en m
+                    for (int f = 0; f < gehghghns[k].second.second; f++) {
+                        tmpd += distanceBetweenPoints[f];
+                    }
+                    float tmpx = 0, tmpy = 0; // en m
+                    float tmpdst = (gehghghns[k].second.first.GetTraveled() - tmpd) / distanceBetweenPoints[gehghghns[k].second.second]; // en m
+                    tmpx = tmpdst * (convex.getPoint(gehghghns[k].second.second + 2).x * ((km * 5) / 4) - convex.getPoint(gehghghns[k].second.second + 1).x * ((km * 5) / 4)) + convex.getPoint(gehghghns[k].second.second + 1).x * ((km * 5) / 4);
+                    tmpy = tmpdst * (convex.getPoint(gehghghns[k].second.second + 2).y * ((km * 5) / 4) - convex.getPoint(gehghghns[k].second.second + 1).y * ((km * 5) / 4)) + convex.getPoint(gehghghns[k].second.second + 1).y * ((km * 5) / 4);
+                    tmpx = (tmpx * 4) / (km * 5); //en px
+                    tmpy = (tmpy * 4) / (km * 5); // en px
+                    gehghghns[k].first.setPosition(tmpx - 3, tmpy + 197);
+                }   //traveled en m, tmpd en m, distanceBetweenPoints en m, convexgetpoint x et y en px
+
+                endc = 1;
                 for (int n = 0; n < nb; n++) {
                     if (gehghghns[n].second.first.GetTraveled() >= tmpdistance) {
                         endc++;
                     }
                 }
-
                 i++;
+
+                ostringstream oss;
+                int heure = i / 3600;
+                int minute = (i % 3600) / 60;
+                int seconde = i % 60;
+                oss << "Durée de la course : " << heure << "h" << minute << "min" << seconde << "s";
+                std::string result = oss.str();
+                time.setString(result);
             }
+            
 
             window.clear();
             window.draw(convex);
@@ -237,8 +304,11 @@ int printPath(sf::ConvexShape convex, sf::VertexArray lines, InfosRunner* array,
                 window.draw(gehghghns[k].first);
             }
 
-            
-            window.draw(text);
+            for (int k = 0; k < nb; k++) {
+                window.draw(text[k]);
+            }
+
+            window.draw(time);
 
             window.draw(lines);
             window.display();
@@ -247,32 +317,6 @@ int printPath(sf::ConvexShape convex, sf::VertexArray lines, InfosRunner* array,
 
     return 0;
 
-}
-
-int generatePrenom() {
-    ofstream prenom("prenom.txt");
-    if (prenom) {
-        
-        string tab[] = { "Jean", "Pierre", "Michel", "Andre", "Philippe", "Rene", "Louis", "Alain", "Jacques", "Bernard",
-                         "Marcel", "Daniel", "Roger", "Robert", "Paul", "Claude", "Christian", "Henri", "Georges", "Nicolas", 
-                         "Francois", "Patrick", "Gerard", "Christophe", "Joseph", "Julien", "Maurice", "Laurent", "Frederic", "Eric", 
-                         "David", "Stephane", "Pascal", "Sebastien", "Alexandre", "Thierry", "Olivier", "Thomas", "Antoine", "Raymond", 
-                         "Guy", "Dominique", "Charles", "Didier", "Marc", "Vincent", "Yves", "Guillaume", "Bruno", "Serge", 
-                         "Maxime", "Marie", "Jeanne", "Francoise", "Monique", "Catherine", "Nathalie", "Isabelle", "Jacqueline", "Anne", 
-                         "Sylvie", "Martine", "Madeleine", "Nicole", "Suzanne", "Helene", "Christine", "Marguerite", "Denise", "Louise", 
-                         "Christiane", "Yvonne", "Valerie", "Sophie", "Sandrine", "Stephanie", "Celine", "Veronique", "Chantal", "Marcelle", 
-                         "Renee", "Simone", "Jeannine", "Julie", "Paulette", "Germaine", "Annie", "Patricia", "Yvette", "Brigitte", 
-                         "Lucie", "Camille", "Lea", "Odette", "Emilie", "Alice", "Genevieve", "Aurelie", "Laurence", "Michele"
-        };
-
-        for (int i = 0; i < 100; i++) {
-            prenom << tab[i] << endl;
-        }
-
-        prenom.close();
-    }
-    else cout << "Impossible d'ouvrir le fichier" << endl;
-    return 0;
 }
 
 int generateRunner(int nbrunner) {
@@ -286,16 +330,28 @@ int generateRunner(int nbrunner) {
 
         for (int i = 0; i < nbrunner; i++) {
             int poids = rand() % 75 + 45;
-            float taille = (rand() % 70 + 130) / 100.;
+            float taille = (rand() % 70 + 130.) / 100.;
             int shoes = rand() % 200 + 100;
-            float vtprec = (rand() % 130 + 70) / 10.;
+            float vtprec = (rand() % 130 + 70.) / 10.;
 
 
             int prepa = rand() % 8 + 8;
 
             int dossard = i + 1;
 
-            runner << poids << sp << taille << sp << shoes << sp << vtprec << sp << prepa << sp << dossard << endl;
+            string tab[] = { "Jean", "Pierre", "Michel", "Andre", "Philippe", "Rene", "Louis", "Alain", "Jacques", "Bernard",
+                     "Marcel", "Daniel", "Roger", "Robert", "Paul", "Claude", "Christian", "Henri", "Georges", "Nicolas",
+                     "Francois", "Patrick", "Gerard", "Christophe", "Joseph", "Julien", "Maurice", "Laurent", "Frederic", "Eric",
+                     "David", "Stephane", "Pascal", "Sebastien", "Alexandre", "Thierry", "Olivier", "Thomas", "Antoine", "Raymond",
+                     "Guy", "Dominique", "Charles", "Didier", "Marc", "Vincent", "Yves", "Guillaume", "Bruno", "Serge",
+                     "Maxime", "Marie", "Jeanne", "Francoise", "Monique", "Catherine", "Nathalie", "Isabelle", "Jacqueline", "Anne",
+                     "Sylvie", "Martine", "Madeleine", "Nicole", "Suzanne", "Helene", "Christine", "Marguerite", "Denise", "Louise",
+                     "Christiane", "Yvonne", "Valerie", "Sophie", "Sandrine", "Stephanie", "Celine", "Veronique", "Chantal", "Marcelle",
+                     "Renee", "Simone", "Jeannine", "Julie", "Paulette", "Germaine", "Annie", "Patricia", "Yvette", "Brigitte",
+                     "Lucie", "Camille", "Lea", "Odette", "Emilie", "Alice", "Genevieve", "Aurelie", "Laurence", "Michele"
+            };
+
+            runner << poids << sp << taille << sp << shoes << sp << vtprec << sp << prepa << sp << dossard << sp << tab[rand()%100] << endl;
         }
 
         runner.close();
@@ -317,16 +373,16 @@ InfosRunner *readRunner(int nbrunner) {
             vector<string> n = split(ligne, ';');
             int poids = atoi(n[0].c_str()), shoes = atoi(n[2].c_str()), prepa = atoi(n[4].c_str()), dossard = atoi(n[5].c_str());
             float taille = atof(n[1].c_str()), vtprec = atof(n[3].c_str());
-
+            string prenom = n[6];
             //
-            cout << poids << sp << taille << sp << shoes << sp << vtprec << sp << prepa << sp << dossard << endl;
+            cout << poids << sp << taille << sp << shoes << sp << vtprec << sp << prepa << sp << dossard << sp << prenom << endl;
             //
 
             Runner rene(poids, taille, shoes, vtprec, prepa, dossard);
             
             float v = 0;
             int w = 0;
-            InfosRunner b(rene, v, v, w);
+            InfosRunner b(rene, v, v, w, prenom);
             array[count] = b;
 
             count++;

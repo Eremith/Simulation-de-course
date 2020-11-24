@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cmath>
+#include <string>
 #include "Class.h"
 
 using namespace std;
@@ -82,15 +83,18 @@ InfosRunner::InfosRunner() {
     vinst = 0;
     traveled = 0;
     hydratation = 0;
+    prenom = "";
 }
 InfosRunner::InfosRunner(Runner& newmichel,
     float& newvinst,
     float& newtraveled,
-    int& newhydratation) :
+    int& newhydratation,
+    string& newprenom) :
     michel(newmichel),
     vinst(newvinst),
     traveled(newtraveled),
-    hydratation(newhydratation) {};
+    hydratation(newhydratation),
+    prenom(newprenom) {};
 Runner InfosRunner::GetMichel() {
     return michel;
 }
@@ -102,6 +106,9 @@ float InfosRunner::GetTraveled() {
 }
 int InfosRunner::GetHydratation() {
     return hydratation;
+}
+string InfosRunner::GetPrenom() {
+    return prenom;
 }
 void InfosRunner::SetVinst(float newvinst) {
     vinst = newvinst;

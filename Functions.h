@@ -6,5 +6,4 @@ int generatePath(int km); //génère un certain nombre de points3D dans un fichier
 int readPath(int km, sf::ConvexShape* convex, sf::VertexArray* lines); //lis le fichier path.txt pour l'afficher avec sfml
 int printPath(sf::ConvexShape c, sf::VertexArray l, InfosRunner* array, int nb, int km);
 int generateRunner(int nbrunner);
-int generatePrenom();
 InfosRunner *readRunner(int nbrunner);
