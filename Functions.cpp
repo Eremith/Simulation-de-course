@@ -141,13 +141,15 @@ int printPath(sf::ConvexShape convex, sf::VertexArray lines, InfosRunner* array,
     convex.setPosition(0, 200);
     convex.setFillColor(sf::Color(0, 125, 0));
 
+    int nbleaderboard = 0;
+    nb > 20 ? nbleaderboard = 20 : nbleaderboard = nb;
+
     sf::Text text[20];
     sf::Font font;
-    if (!font.loadFromFile("OpenSans-Bold.ttf"))
-    {
+    if (!font.loadFromFile("OpenSans-Bold.ttf")) {
         // erreur...
     }
-    for (int h = 0; h < nb; h++) {
+    for (int h = 0; h < nbleaderboard; h++) {
         text[h].setFont(font);
         text[h].setString("");
         text[h].setColor(sf::Color::White);
@@ -198,8 +200,6 @@ int printPath(sf::ConvexShape convex, sf::VertexArray lines, InfosRunner* array,
 
             float tmpdistance = 0;
             if (endc <= nb) {
-                
-
 
                 for (int k = 0; k < nb; k++) { //Calcul de la VInst, de la distance parcourue et du point précédent
                     float vinst = 0;
@@ -235,8 +235,6 @@ int printPath(sf::ConvexShape convex, sf::VertexArray lines, InfosRunner* array,
                     gehghghns[k].second.first.SetVinst(vinst); //vinst = m/s, avgspeed = km/h
                     gehghghns[k].second.first.SetTraveled(gehghghns[k].second.first.GetTraveled() + gehghghns[k].second.first.GetVinst()); //traveled = m, vinst = m/s
 
-                    //
-
                     struct compA {
                         bool operator()(pair<sf::CircleShape, pair<InfosRunner, int>>& a1, pair<sf::CircleShape, pair<InfosRunner, int>>& a2)
                         {
@@ -244,12 +242,11 @@ int printPath(sf::ConvexShape convex, sf::VertexArray lines, InfosRunner* array,
                         }
                     };
 
-
                     std::sort(gehghghns.begin() + endc - 1, gehghghns.end(), compA());
                     std::reverse(gehghghns.begin() + endc - 1, gehghghns.end());
 
-
-                    for (int d = 0; d < nb; d++) {
+                    
+                    for (int d = 0; d < nbleaderboard; d++) {
                         ostringstream oss;
                         int entier = (int)(gehghghns[d].second.first.GetVinst() * 100.0);
                         float fltvinst = (float)entier / 100;
@@ -259,7 +256,6 @@ int printPath(sf::ConvexShape convex, sf::VertexArray lines, InfosRunner* array,
                         std::string result = oss.str();
                         text[d].setString(result);
                     }
-                    //
 
                     tmpdistance = 0; //en m
                     for (int v = 0; v < convex.getPointCount() - 3; v++) {
@@ -304,7 +300,7 @@ int printPath(sf::ConvexShape convex, sf::VertexArray lines, InfosRunner* array,
                 window.draw(gehghghns[k].first);
             }
 
-            for (int k = 0; k < nb; k++) {
+            for (int k = 0; k < nbleaderboard; k++) {
                 window.draw(text[k]);
             }
 
