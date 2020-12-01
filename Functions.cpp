@@ -121,7 +121,7 @@ int readPath(int km, sf::ConvexShape *c, sf::VertexArray *l) {
             current++;
         }
 
-        lines.resize(count - 1);
+        lines.resize(static_cast<__int64>(count) - 1);
 
         *c = convex;
         *l = lines;
@@ -144,27 +144,42 @@ int printPath(sf::ConvexShape convex, sf::VertexArray lines, InfosRunner* array,
     int nbleaderboard = 0;
     nb > 20 ? nbleaderboard = 20 : nbleaderboard = nb;
 
-    sf::Text text[20];
     sf::Font font;
     if (!font.loadFromFile("OpenSans-Bold.ttf")) {
         // erreur...
     }
+    sf::Text text[20];
+    sf::Text text2[20];
+    sf::Text text3[20];
+    sf::Text text4[20];
+    
+    //parametrage tableau sfml
     for (int h = 0; h < nbleaderboard; h++) {
+        //rang
         text[h].setFont(font);
-        text[h].setString("");
-        text[h].setColor(sf::Color::White);
         text[h].setCharacterSize(24);
-        text[h].setPosition(1000, 50 + 20 * h);
+        text[h].setPosition(1000, 50 + 30 * h);
+        //nom
+        text2[h].setFont(font);
+        text2[h].setCharacterSize(24);
+        text2[h].setPosition(1100, 50 + 30 * h);
+        //vitesse instantanée m/s
+        text3[h].setFont(font);
+        text3[h].setCharacterSize(24);
+        text3[h].setPosition(1300, 50 + 30 * h);
+        //distance parcourue km
+        text4[h].setFont(font);
+        text4[h].setCharacterSize(24);
+        text4[h].setPosition(1400, 50 + 30 * h);
     }
     sf::Text time;
     time.setFont(font);
-    time.setString("a");
-    time.setColor(sf::Color::White);
+    time.setString("");
     time.setCharacterSize(24);
     time.setPosition(50, 50);
 
-    sf::CircleShape gens(3);
-    vector<pair<sf::CircleShape, pair<InfosRunner, int>>> gehghghns(nb);
+    sf::CircleShape gens(3); //Cercle de 3 de rayon = représentation coureur
+    vector<pair<sf::CircleShape, pair<InfosRunner, int>>> gehghghns(nb); //pair<représentation, pair<Informations, dernier point atteint>>
 
     for (int i = 0; i < nb; i++) {
         gehghghns[i].first = gens;
@@ -173,16 +188,11 @@ int printPath(sf::ConvexShape convex, sf::VertexArray lines, InfosRunner* array,
         gehghghns[i].second.first = array[i];
     }
 
+    float distance = 0;
     vector<float> distanceBetweenPoints(convex.getPointCount() - 2);
     for (int i = 0; i < convex.getPointCount() - 3; i++) {
-        distanceBetweenPoints[i] = (km * 5 / 4) * sqrt(pow(lines[i + 2].position.y - lines[i + 1].position.y, 2) + pow(convex.getPoint(i + 2).y - convex.getPoint(i + 1).y, 2) + pow(convex.getPoint(i + 2).x - convex.getPoint(i + 1).x, 2));
-        cout << distanceBetweenPoints[i] << sp; //en m
-    }
-    cout << endl;
-
-    float distance = 0;
-    for (int v = 0; v < convex.getPointCount() - 3; v++) {
-        distance += distanceBetweenPoints[v];
+        distanceBetweenPoints[i] = (km * 5 / 4) * sqrt(pow(lines[static_cast<__int64>(i) + 2].position.y - lines[static_cast<__int64>(i) + 1].position.y, 2) + pow(convex.getPoint(static_cast<__int64>(i) + 2).y - convex.getPoint(static_cast<__int64>(i) + 1).y, 2) + pow(convex.getPoint(static_cast<__int64>(i) + 2).x - convex.getPoint(static_cast<__int64>(i) + 1).x, 2));
+        distance += distanceBetweenPoints[i];
     }
 
     vector<InfosRunner> leaderboard(10);
@@ -211,7 +221,7 @@ int printPath(sf::ConvexShape convex, sf::VertexArray lines, InfosRunner* array,
                     }
 
                     int a = gehghghns[k].second.second;
-                    float pente = -((convex.getPoint(a + 1).y - convex.getPoint(a).y) * 100) / sqrt(pow(lines[a + 1].position.y - lines[a].position.y, 2) + pow(convex.getPoint(a + 1).y - convex.getPoint(a).y, 2) + pow(convex.getPoint(a + 1).x - convex.getPoint(a).x, 2));
+                    float pente = -((convex.getPoint(static_cast<__int64>(a) + 1).y - convex.getPoint(a).y) * 100) / sqrt(pow(lines[static_cast<__int64>(a) + 1].position.y - lines[a].position.y, 2) + pow(convex.getPoint(static_cast<__int64>(a) + 1).y - convex.getPoint(a).y, 2) + pow(convex.getPoint(static_cast<__int64>(a) + 1).x - convex.getPoint(a).x, 2));
                     if (pente < 0) { //vitesse selon la pente
                         vinst = vinst * (1 + pente / 150); //pente descendante
                     }
@@ -238,23 +248,28 @@ int printPath(sf::ConvexShape convex, sf::VertexArray lines, InfosRunner* array,
                     struct compA {
                         bool operator()(pair<sf::CircleShape, pair<InfosRunner, int>>& a1, pair<sf::CircleShape, pair<InfosRunner, int>>& a2)
                         {
-                            return (a1.second.first.GetTraveled() < a2.second.first.GetTraveled());
+                            return (a1.second.first.GetTraveled() > a2.second.first.GetTraveled());
                         }
                     };
 
                     std::sort(gehghghns.begin() + endc - 1, gehghghns.end(), compA());
-                    std::reverse(gehghghns.begin() + endc - 1, gehghghns.end());
-
                     
                     for (int d = 0; d < nbleaderboard; d++) {
-                        ostringstream oss;
                         int entier = (int)(gehghghns[d].second.first.GetVinst() * 100.0);
                         float fltvinst = (float)entier / 100;
                         entier = (int)(gehghghns[d].second.first.GetTraveled() / 100);
                         float flttraveled = (float)entier / 10;
-                        oss << d + 1 << " " << gehghghns[d].second.first.GetPrenom() << "   " << fltvinst << "   " << flttraveled;
-                        std::string result = oss.str();
-                        text[d].setString(result);
+                        ostringstream oss;
+                        oss << setprecision(3);
+                        oss << fltvinst;
+                        string fltstr = oss.str();
+                        oss.str("");
+                        oss << flttraveled;
+
+                        text[d].setString(to_string(d + 1));
+                        text2[d].setString(gehghghns[d].second.first.GetPrenom());
+                        text3[d].setString(fltstr);
+                        text4[d].setString(oss.str());
                     }
 
                     tmpdistance = 0; //en m
@@ -268,19 +283,13 @@ int printPath(sf::ConvexShape convex, sf::VertexArray lines, InfosRunner* array,
                     }
                     float tmpx = 0, tmpy = 0; // en m
                     float tmpdst = (gehghghns[k].second.first.GetTraveled() - tmpd) / distanceBetweenPoints[gehghghns[k].second.second]; // en m
-                    tmpx = tmpdst * (convex.getPoint(gehghghns[k].second.second + 2).x * ((km * 5) / 4) - convex.getPoint(gehghghns[k].second.second + 1).x * ((km * 5) / 4)) + convex.getPoint(gehghghns[k].second.second + 1).x * ((km * 5) / 4);
-                    tmpy = tmpdst * (convex.getPoint(gehghghns[k].second.second + 2).y * ((km * 5) / 4) - convex.getPoint(gehghghns[k].second.second + 1).y * ((km * 5) / 4)) + convex.getPoint(gehghghns[k].second.second + 1).y * ((km * 5) / 4);
+                    tmpx = tmpdst * (convex.getPoint(static_cast<__int64>(gehghghns[k].second.second) + 2).x * ((km * 5) / 4) - convex.getPoint(static_cast<__int64>(gehghghns[k].second.second) + 1).x * ((km * 5) / 4)) + convex.getPoint(static_cast<__int64>(gehghghns[k].second.second) + 1).x * ((km * 5) / 4);
+                    tmpy = tmpdst * (convex.getPoint(static_cast<__int64>(gehghghns[k].second.second) + 2).y * ((km * 5) / 4) - convex.getPoint(static_cast<__int64>(gehghghns[k].second.second) + 1).y * ((km * 5) / 4)) + convex.getPoint(static_cast<__int64>(gehghghns[k].second.second) + 1).y * ((km * 5) / 4);
                     tmpx = (tmpx * 4) / (km * 5); //en px
                     tmpy = (tmpy * 4) / (km * 5); // en px
                     gehghghns[k].first.setPosition(tmpx - 3, tmpy + 197);
                 }   //traveled en m, tmpd en m, distanceBetweenPoints en m, convexgetpoint x et y en px
 
-                endc = 1;
-                for (int n = 0; n < nb; n++) {
-                    if (gehghghns[n].second.first.GetTraveled() >= tmpdistance) {
-                        endc++;
-                    }
-                }
                 i++;
 
                 ostringstream oss;
@@ -291,7 +300,6 @@ int printPath(sf::ConvexShape convex, sf::VertexArray lines, InfosRunner* array,
                 std::string result = oss.str();
                 time.setString(result);
             }
-            
 
             window.clear();
             window.draw(convex);
@@ -302,6 +310,9 @@ int printPath(sf::ConvexShape convex, sf::VertexArray lines, InfosRunner* array,
 
             for (int k = 0; k < nbleaderboard; k++) {
                 window.draw(text[k]);
+                window.draw(text2[k]);
+                window.draw(text3[k]);
+                window.draw(text4[k]);
             }
 
             window.draw(time);
@@ -370,9 +381,6 @@ InfosRunner *readRunner(int nbrunner) {
             int poids = atoi(n[0].c_str()), shoes = atoi(n[2].c_str()), prepa = atoi(n[4].c_str()), dossard = atoi(n[5].c_str());
             float taille = atof(n[1].c_str()), vtprec = atof(n[3].c_str());
             string prenom = n[6];
-            //
-            cout << poids << sp << taille << sp << shoes << sp << vtprec << sp << prepa << sp << dossard << sp << prenom << endl;
-            //
 
             Runner rene(poids, taille, shoes, vtprec, prepa, dossard);
             
