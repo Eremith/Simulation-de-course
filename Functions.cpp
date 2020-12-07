@@ -132,6 +132,8 @@ int readPath(int km, sf::ConvexShape *c, sf::VertexArray *l) {
 
 int printPath(sf::ConvexShape convex, sf::VertexArray lines, InfosRunner* array, int nb, int km) {
 
+    srand((unsigned int)time(0));
+
     sf::RenderWindow window(sf::VideoMode(1920, 1080), "Simulation");
 
     convex.setPosition(0, 200);
@@ -207,6 +209,7 @@ int printPath(sf::ConvexShape convex, sf::VertexArray lines, InfosRunner* array,
         gehghghns[i].first.setFillColor(sf::Color(rand() % 256, rand() % 256, rand() % 256));
         gehghghns[i].second.second = 1;
         gehghghns[i].second.first = array[i];
+
     }
 
     float distance = 0;
@@ -225,6 +228,7 @@ int printPath(sf::ConvexShape convex, sf::VertexArray lines, InfosRunner* array,
         }
     };
 
+    int levent = 0;
     int i = 0;
     int endc = 1;
     while (window.isOpen()) {
@@ -274,6 +278,23 @@ int printPath(sf::ConvexShape convex, sf::VertexArray lines, InfosRunner* array,
                             rpt = 0.20;
                         }
                         vinst = vinst * (1 - rpt);
+                    }
+
+                    //vitesse selon vent
+                    if (i % 20 == 0) {
+                        levent = rand() % 20 - 10;
+                    }
+                    float Pr = (vinst / 60) * gehghghns[k].second.first.GetMichel().GetWeight() * 0.98;
+                    float Pa = 0.5 * 1.225 * 0.137 * gehghghns[k].second.first.GetMichel().GetSize() * pow((vinst / 60) + 0, 2) * (vinst / 60);
+                    float Ptmax = Pr + Pa;
+                    Pa = 0.5 * 1.225 * 0.137 * gehghghns[k].second.first.GetMichel().GetSize() * pow((vinst / 60) + levent, 2) * (vinst / 60);
+                    Pr = Ptmax - Pa;
+                    float V = Pr / (gehghghns[k].second.first.GetMichel().GetWeight() * 0.98);
+                    if (levent < 0) {
+                        vinst += vinst - V * 60;
+                    }
+                    else {
+                        vinst = V * 60;
                     }
 
                     gehghghns[k].second.first.SetVinst(vinst); //vinst = m/s, avgspeed = km/h
