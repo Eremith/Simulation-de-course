@@ -24,7 +24,7 @@ int generatePath(int km){
         vector<Point3D> chemin;
         float rpt = 0.3;
         float rptsecond = 0.3;
-        int dtcurve = 5;
+        int dtcurve = 4;
 
         Point3D origin(0, 0, 0);
         chemin.insert(chemin.begin(), origin);
@@ -111,10 +111,6 @@ int readPath(int km, sf::ConvexShape *c, sf::VertexArray *l) {
             vector<string> n = split(ligne, ';');
             int x = atoi(n[0].c_str()), y = atoi(n[1].c_str()), z = atoi(n[2].c_str());
 
-            //
-            cout << x << " " << y << " " << z << endl;
-            //
-
             convex.setPoint(current, sf::Vector2f(z, y));
             lines[current].position = sf::Vector2f(z, x + 600);
 
@@ -152,6 +148,14 @@ int printPath(sf::ConvexShape convex, sf::VertexArray lines, InfosRunner* array,
     sf::Text text2[20];
     sf::Text text3[20];
     sf::Text text4[20];
+    sf::Text text5[20];
+    sf::Text text6[20];
+    sf::Text infos;
+
+    infos.setFont(font);
+    infos.setCharacterSize(24);
+    infos.setPosition(1000, 15);
+    infos.setString("Rang          Nom            Vit : m/s     parcourue        temps final            moy. : m/s");
     
     //parametrage tableau sfml
     for (int h = 0; h < nbleaderboard; h++) {
@@ -171,15 +175,32 @@ int printPath(sf::ConvexShape convex, sf::VertexArray lines, InfosRunner* array,
         text4[h].setFont(font);
         text4[h].setCharacterSize(24);
         text4[h].setPosition(1400, 50 + 30 * h);
+        //temps final
+        text5[h].setFont(font);
+        text5[h].setCharacterSize(24);
+        text5[h].setPosition(1500, 50 + 30 * h);
+        //vitesse moyenne
+        text6[h].setFont(font);
+        text6[h].setCharacterSize(24);
+        text6[h].setPosition(1800, 50 + 30 * h);
     }
-    sf::Text time;
-    time.setFont(font);
-    time.setString("");
-    time.setCharacterSize(24);
-    time.setPosition(50, 50);
+    sf::Text times;
+    times.setFont(font);
+    times.setString("");
+    times.setCharacterSize(24);
+    times.setPosition(50, 50);
+
+    ofstream classement("classement.txt");
+    if (classement) {
+        //creation ou reset classement
+        classement.close();
+    }
+    else cout << "Impossible d'ouvrir le fichier" << endl;
 
     sf::CircleShape gens(3); //Cercle de 3 de rayon = représentation coureur
     vector<pair<sf::CircleShape, pair<InfosRunner, int>>> gehghghns(nb); //pair<représentation, pair<Informations, dernier point atteint>>
+    vector<int> aled(nb);
+    vector<float> moi(nb);
 
     for (int i = 0; i < nb; i++) {
         gehghghns[i].first = gens;
@@ -197,6 +218,13 @@ int printPath(sf::ConvexShape convex, sf::VertexArray lines, InfosRunner* array,
 
     vector<InfosRunner> leaderboard(10);
 
+    struct compA {
+        bool operator()(pair<sf::CircleShape, pair<InfosRunner, int>>& a1, pair<sf::CircleShape, pair<InfosRunner, int>>& a2)
+        {
+            return (a1.second.first.GetTraveled() > a2.second.first.GetTraveled());
+        }
+    };
+
     int i = 0;
     int endc = 1;
     while (window.isOpen()) {
@@ -213,11 +241,17 @@ int printPath(sf::ConvexShape convex, sf::VertexArray lines, InfosRunner* array,
 
                 for (int k = 0; k < nb; k++) { //Calcul de la VInst, de la distance parcourue et du point précédent
                     float vinst = 0;
+
+                    if(gehghghns[k].second.first.GetTraveled() >= distance && gehghghns[k].second.first.GetVinst() != 0){
+                        aled[k] = i;
+                        moi[k] = km / aled[k];
+                    }
+
                     if (gehghghns[k].second.first.GetTraveled() >= distance) {
                         vinst = 0;
                     }
                     else {
-                        vinst = gehghghns[k].second.first.GetMichel().GetAvgSpeed() / 3.6; //vitesse par défaut en m/s
+                        vinst = (gehghghns[k].second.first.GetMichel().GetAvgSpeed() / 3.6) * 60; //vitesse par défaut en m/s
                     }
 
                     int a = gehghghns[k].second.second;
@@ -245,13 +279,6 @@ int printPath(sf::ConvexShape convex, sf::VertexArray lines, InfosRunner* array,
                     gehghghns[k].second.first.SetVinst(vinst); //vinst = m/s, avgspeed = km/h
                     gehghghns[k].second.first.SetTraveled(gehghghns[k].second.first.GetTraveled() + gehghghns[k].second.first.GetVinst()); //traveled = m, vinst = m/s
 
-                    struct compA {
-                        bool operator()(pair<sf::CircleShape, pair<InfosRunner, int>>& a1, pair<sf::CircleShape, pair<InfosRunner, int>>& a2)
-                        {
-                            return (a1.second.first.GetTraveled() > a2.second.first.GetTraveled());
-                        }
-                    };
-
                     std::sort(gehghghns.begin() + endc - 1, gehghghns.end(), compA());
                     
                     for (int d = 0; d < nbleaderboard; d++) {
@@ -261,7 +288,7 @@ int printPath(sf::ConvexShape convex, sf::VertexArray lines, InfosRunner* array,
                         float flttraveled = (float)entier / 10;
                         ostringstream oss;
                         oss << setprecision(3);
-                        oss << fltvinst;
+                        oss << fltvinst / 60;
                         string fltstr = oss.str();
                         oss.str("");
                         oss << flttraveled;
@@ -270,6 +297,18 @@ int printPath(sf::ConvexShape convex, sf::VertexArray lines, InfosRunner* array,
                         text2[d].setString(gehghghns[d].second.first.GetPrenom());
                         text3[d].setString(fltstr);
                         text4[d].setString(oss.str());
+                        int tmphours = aled[d] / 60;
+                        int tmpminutes = aled[d] % 60;
+                        oss.str("");
+                        if (aled[d] != 0) {
+                            oss << tmphours << " heures " << tmpminutes << " minutes";
+                        }
+                        text5[d].setString(oss.str());
+                        oss.str("");
+                        if (aled[d] != 0) {
+                            oss << (float)(gehghghns[d].second.first.GetTraveled() / (aled[d] * 60));
+                        }
+                        text6[d].setString(oss.str());
                     }
 
                     tmpdistance = 0; //en m
@@ -277,6 +316,7 @@ int printPath(sf::ConvexShape convex, sf::VertexArray lines, InfosRunner* array,
                         tmpdistance += distanceBetweenPoints[v];
                         if (gehghghns[k].second.first.GetTraveled() >= tmpdistance) gehghghns[k].second.second = v + 1;
                     }
+
                     float tmpd = 0; // en m
                     for (int f = 0; f < gehghghns[k].second.second; f++) {
                         tmpd += distanceBetweenPoints[f];
@@ -290,15 +330,27 @@ int printPath(sf::ConvexShape convex, sf::VertexArray lines, InfosRunner* array,
                     gehghghns[k].first.setPosition(tmpx - 3, tmpy + 197);
                 }   //traveled en m, tmpd en m, distanceBetweenPoints en m, convexgetpoint x et y en px
 
+                endc = 1;
+                for (int n = 0; n < nb; n++) {
+                    if (gehghghns[n].second.first.GetTraveled() >= tmpdistance) {
+                        endc++;
+                    }
+                }
                 i++;
 
+                if (endc > nb) {
+                    ofstream file("classement.txt", ios_base::app);
+                    for (int q = 0; q < nb - 1; q++) {
+                        file << q + 1 << " | " << gehghghns[q].second.first.GetPrenom() << " | " << aled[q] / 60 << "h" << aled[q] / 60 << "min" << endl;
+                    }
+                }
+
                 ostringstream oss;
-                int heure = i / 3600;
-                int minute = (i % 3600) / 60;
-                int seconde = i % 60;
-                oss << "Durée de la course : " << heure << "h" << minute << "min" << seconde << "s";
+                int heure = i / 60;
+                int minute = i % 60;
+                oss << "Durée de la course : " << heure << "h" << minute << "min";
                 std::string result = oss.str();
-                time.setString(result);
+                times.setString(result);
             }
 
             window.clear();
@@ -313,14 +365,16 @@ int printPath(sf::ConvexShape convex, sf::VertexArray lines, InfosRunner* array,
                 window.draw(text2[k]);
                 window.draw(text3[k]);
                 window.draw(text4[k]);
+                window.draw(text5[k]);
+                window.draw(text6[k]);
             }
 
-            window.draw(time);
+            window.draw(infos);
+            window.draw(times);
 
             window.draw(lines);
             window.display();
     }
-    cout << "ITERATION (=secondes)" << i << endl;
 
     return 0;
 

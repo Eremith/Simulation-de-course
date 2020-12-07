@@ -3,8 +3,8 @@
 #include "Class.h"
 #include "Functions.h"
 
-#define RUNNER 10
-#define KM 20
+#define RUNNER 100
+#define KM 40
 
 using namespace std;
 
