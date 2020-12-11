@@ -362,7 +362,7 @@ int printPath(sf::ConvexShape convex, sf::VertexArray lines, InfosRunner* array,
                 if (endc > nb) {
                     ofstream file("classement.txt", ios_base::app);
                     for (int q = 0; q < nb - 1; q++) {
-                        file << q + 1 << " | " << gehghghns[q].second.first.GetPrenom() << " | " << aled[q] / 60 << "h" << aled[q] / 60 << "min" << endl;
+                        file << q + 1 << " | " << gehghghns[q].second.first.GetPrenom() << " | " << aled[q] / 60 << "h" << aled[q] % 60 << "min" << " | " << "Dossard n°" << gehghghns[q].second.first.GetMichel().GetDossard() << endl;
                     }
                 }
 
